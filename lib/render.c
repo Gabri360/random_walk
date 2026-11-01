@@ -48,7 +48,7 @@ void plot(SDL_Renderer *ren, int N, double x[], double y[])
 	int w, h;
     SDL_GetRendererOutputSize(ren, &w, &h);
     const float m = 50.0f;
-    SDL_FRect plot = { m, m, w - 2 * m, h - 2 * m };
+    SDL_FRect plot = { m, m, (float)w - 2.0f * m, (float)h - 2.0f * m };
 
     SDL_SetRenderDrawColor(ren, 20, 20, 28, 255);
     SDL_RenderClear(ren);
@@ -70,6 +70,6 @@ void plot(SDL_Renderer *ren, int N, double x[], double y[])
     for (int i = 1; i < N; i++) {
         thick_line(ren,
 				   map_x(&v, plot, x[i - 1]), map_y(&v, plot, y[i - 1]),
-				   map_x(&v, plot, x[i]),     map_y(&v, plot, y[i]), 12.0f, linea);
+				   map_x(&v, plot, x[i]),     map_y(&v, plot, y[i]), 10.0f, linea);
     }
 }

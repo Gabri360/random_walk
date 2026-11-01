@@ -34,6 +34,7 @@ FetchContent_MakeAvailable(SDL2 SDL2_ttf)
 add_executable(random_walk
   src/main.c
   lib/render.c
+  src/simulation.c
 )
 
 target_include_directories(random_walk PRIVATE ${CMAKE_SOURCE_DIR}/headers)
@@ -68,7 +69,7 @@ endif()
 if(MSVC)
     target_compile_options(random_walk PRIVATE /W4)
 else()
-    target_compile_options(random_walk PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(random_walk PRIVATE -Wall -Wextra -Wpedantic -Wconversion)
 endif()
 
 # add_custom_command(TARGET random_walk POST_BUILD

@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <math.h>
 #include "render.h"
+#include "simulation.h"
 
-#define N 1000
 #define SCALE 0.9
-#define FPS 30
-
+#define FPS 120
+#define MAX_N 10000
 
 int main() {
 
@@ -18,8 +18,7 @@ int main() {
     SDL_Window *win = SDL_CreateWindow("random_walk", SDL_WINDOWPOS_CENTERED,
                                        SDL_WINDOWPOS_CENTERED, 1920*SCALE, 1080*SCALE,
                                        SDL_WINDOW_RESIZABLE);
-    SDL_Renderer *ren = SDL_CreateRenderer(win, -1,
-										   SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
     if (!win || !ren) {
         fprintf(stderr, "SDL: %s\n", SDL_GetError());
         return 1;
@@ -29,31 +28,40 @@ int main() {
 	Uint64 next_frame = SDL_GetPerformanceCounter();
 
 
-    int running = 1;
-	double a = 1.0, x[N], y[N];
+	init_myrand();
+
+    int running = 1, n = 0, step_once = 0, paused = 0;
+
+	double x[MAX_N], y[MAX_N];
 	//--------------------------------LOOP
     while (running) {
 
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) running = 0;
-            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) running = 0;
+            if (e.type == SDL_KEYDOWN && !e.key.repeat) {
+                switch (e.key.keysym.sym) {
+                case SDLK_ESCAPE: running = 0; break;
+                case SDLK_SPACE:  if (paused) step_once = 1; break;
+                case SDLK_p: paused = !paused; break;
+                }
+            }
         }
 
 		//--------------------------SIMULATION
 
 
-
-		for (int i = 0; i < N; i++) {
-			x[i] = 0.0 + (10.0+a) * i / (N - 1);
-			y[i] = sinf(x[i]) + 1.0;
-		}
-
-		a += 0.1;
+		 if (!paused || step_once) {
+            if (n < MAX_N) {
+                rand_step(n,x,y);
+                n++;
+            }
+            step_once = 0;
+        }
 
 
 		//-----------------------------PLOT
-		plot(ren, N , x, y);
+		plot(ren, n , x, y);
 
         SDL_RenderPresent(ren);
 		next_frame += frame_ticks;
