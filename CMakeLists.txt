@@ -5,6 +5,10 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 include(FetchContent)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
@@ -47,7 +51,6 @@ else()
     message(FATAL_ERROR "Target SDL2_ttf non trovato")
 endif()
 
-# Stessa cosa per SDL2, per sicurezza
 if(TARGET SDL2::SDL2)
     set(RW_SDL_TARGET SDL2::SDL2)
 elseif(TARGET SDL2::SDL2-static)
@@ -72,7 +75,7 @@ else()
     target_compile_options(random_walk PRIVATE -Wall -Wextra -Wpedantic -Wconversion)
 endif()
 
-# add_custom_command(TARGET random_walk POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy_directory
-#             ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:random_walk>/assets
-# )
+add_custom_command(TARGET random_walk POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:random_walk>/assets
+)
