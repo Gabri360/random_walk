@@ -5,15 +5,18 @@
 #include <time.h>
 #include "render.h"
 #include "simulation.h"
+#include "const.h"
+
 
 #define SCALE 0.9
 #define FPS 60
-#define MAX_N 100000
 #define MAX_STEPS_PER_FRAME 4096
 #define FONT_FILE "assets/DejaVuSansMono.ttf"
 #define FONT_PX 14
 
-static double t[MAX_N], x[MAX_N], m[MAX_N];
+static double t[MAX_N], d[MAX_N], m[MAX_N];
+static double x[DIM][MAX_N];
+
 int main(int argc, char *argv[]) {
 
 	//----------------------------------INIT
@@ -77,7 +80,8 @@ int main(int argc, char *argv[]) {
         step_once = 0;
         for (int s = 0; s < steps && n < MAX_N; s++) {
             rand_step(n, t, x);
-            comp_mean(n, x, m);
+			comp_dist(n, x, d);
+            comp_mean(n, d, m);
             n++;
         }
 
@@ -90,7 +94,7 @@ int main(int argc, char *argv[]) {
 
         SDL_SetRenderDrawColor(ren, 20, 20, 28, 255);
         SDL_RenderClear(ren);
-        plot_draw(plot, n, t, m, title, "t", "<x>");
+        plot_draw(plot, n, t, d, title, "t", "d");
         SDL_RenderPresent(ren);
 
         //-----------------------------FPS

@@ -1,4 +1,6 @@
 #include "simulation.h"
+#include <math.h>
+
 
 static uint64_t rng_state = 88172645463325252ULL;
 
@@ -17,14 +19,30 @@ static uint64_t next_u64(void)
     return s * 2685821657736338717ULL;
 }
 
-void rand_step(int n, double t[], double x[])
+void rand_step(int n, double t[], double x[][MAX_N])
 {
-    t[n] = n * 0.1;
-    if (n == 0)
-        x[0] = 0.0;
-    else
-        x[n] = x[n - 1] + ((next_u64() >> 63) ? 1.0 : -1.0);
+
+	t[n] = n * 0.1;
+
+    for (int i = 0; i < DIM; i++)
+        x[i][n] = (n == 0) ? 0.0 : x[i][n - 1];
+
+    if (n > 0) {
+        uint64_t r = next_u64() % (2 * DIM);
+        int axis = (int)(r / 2);
+        x[axis][n] += (r % 2) ? 1.0 : -1.0;
+    }
 }
+
+void comp_dist(int n, double x[][MAX_N], double d[])
+{
+	d[n] = 0;
+	for(int i=0;i<DIM;i++) {
+		d[n] += x[i][n]*x[i][n];
+	}
+	d[n] = sqrt(d[n]);
+}
+
 
 void comp_mean(int n, double x[], double m[])
 {
