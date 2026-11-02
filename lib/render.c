@@ -63,7 +63,7 @@ static int text_w(const Plot *p, const char *s)
 }
 
 static void draw_text(Plot *p, const char *s, float x, float y,
-                      Align ax, Align ay, double angle)
+                      Align ax, Align ay, double angle, Uint8 alpha)
 {
     if (!p->font || !s || !*s) return;
 
@@ -89,6 +89,9 @@ static void draw_text(Plot *p, const char *s, float x, float y,
     const float w = (float)surf->w, h = (float)surf->h;
     SDL_FreeSurface(surf);
     if (!tex) return;
+
+	SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureAlphaMod(tex, alpha);
 
     SDL_FRect d = { roundf(x - w * align_k(ax)), roundf(y - h * align_k(ay)), w, h };
     SDL_RenderCopyF(p->ren, tex, NULL, &d);
@@ -378,23 +381,32 @@ void plot_draw(Plot *p, int n, const double *x, const double *y, const char *tit
         set_color(p->ren, COL_FRAME);
         SDL_RenderDrawLineF(p->ren, px, r->y + r->h, px, r->y + r->h + TICK_LEN);
         fmt_tick(buf, sizeof buf, tx.v[i], &tx);
-        draw_text(p, buf, px, r->y + r->h + TICK_LEN + 4.0f, ALIGN_CENTER, ALIGN_START, 0.0);
+        draw_text(p, buf, px, r->y + r->h + TICK_LEN + 4.0f, ALIGN_CENTER, ALIGN_START, 0.0, 255);
     }
     for (int i = 0; i < ty.n; i++) {
         const float py = vy(&v, ty.v[i]);
         set_color(p->ren, COL_FRAME);
         SDL_RenderDrawLineF(p->ren, r->x - TICK_LEN, py, r->x, py);
         fmt_tick(buf, sizeof buf, ty.v[i], &ty);
-        draw_text(p, buf, r->x - TICK_LEN - 4.0f, py, ALIGN_END, ALIGN_CENTER, 0.0);
+        draw_text(p, buf, r->x - TICK_LEN - 4.0f, py, ALIGN_END, ALIGN_CENTER, 0.0, 255);
     }
 
 
+	char step_text[96];
+	for(int i=0;i<fmin(20,n);i++) {
+		snprintf(step_text, sizeof step_text, "%.1lf",y[n-1-i]);
+		draw_text(p, step_text, r->x + 25.0f, r->y + 15.0f + 15.0f*(float)i, ALIGN_CENTER, ALIGN_CENTER, 0.0, (Uint8)(75+180*(20-i)/20));
+	}
+
     if (has_t)
-        draw_text(p, title, r->x + r->w / 2.0f, top / 2.0f, ALIGN_CENTER, ALIGN_CENTER, 0.0);
+        draw_text(p, title, r->x + r->w / 2.0f, top / 2.0f, ALIGN_CENTER, ALIGN_CENTER, 0.0, 255);
     if (has_x)
         draw_text(p, xlabel, r->x + r->w / 2.0f, r->y + r->h + TICK_LEN + 4.0f + fh + 6.0f,
-                  ALIGN_CENTER, ALIGN_START, 0.0);
+                  ALIGN_CENTER, ALIGN_START, 0.0, 255);
     if (has_y)
         draw_text(p, ylabel, 6.0f + fh / 2.0f, r->y + r->h / 2.0f,
-                  ALIGN_CENTER, ALIGN_CENTER, -90.0);
+                  ALIGN_CENTER, ALIGN_CENTER, -90.0, 255);
+
+
+
 }

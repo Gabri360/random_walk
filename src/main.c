@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 
 		//-----------------------------PLOT
         char title[96];
-        snprintf(title, sizeof title, "Random walk  |  n = %d  |  %d passi/frame%s",
+        snprintf(title, sizeof title, "Random walk  |  %d DIM  |  n = %d  |  %d step/frame%s",DIM,
                  n, steps_per_frame, paused ? "  |  PAUSA" : "");
 
         SDL_SetRenderDrawColor(ren, 20, 20, 28, 255);
